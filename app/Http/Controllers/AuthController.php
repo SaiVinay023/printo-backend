@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use PragmaRX\Google2FA\Google2FA;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Renderer\Image\Png;
+use BaconQrCode\Writer;
+
 
 
 
@@ -63,13 +68,28 @@ class AuthController extends Controller
         $user->two_factor_secret = $secret;
         $user->save();
 
-        $QR_Image = $google2fa->getQRCodeInline(
-            'Printo Foundation', // Company name
-            $user->email,
-            $secret
+        $otpAuthUrl = $google2fa->getQRCodeUrl(
+        'YourAppName', // or set your own app name
+        $user->email,
+        $secret
         );
 
-        return  response()->json(['secret' => $secret, 'qr' => $QR_Image]);
+        // Generate QR code PNG as base64 string using BaconQrCode
+        $renderer = new ImageRenderer(
+            new RendererStyle(200),
+            new Png()
+        );
+
+        $writer = new Writer($renderer);
+        $pngData = $writer->writeString($otpAuthUrl);
+        $qr_base64 = 'data:image/png;base64,' . base64_encode($pngData);
+
+        return response()->json([
+        'secret' => $secret,
+        'otpauth_url' => $otpAuthUrl,
+        'qr' => $qr_base64
+        ]);
+
         
     }
 
