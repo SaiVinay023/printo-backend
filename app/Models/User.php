@@ -18,10 +18,20 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+    'name',
+    'email',
+    'password',
+    'first_name',
+    'last_name',
+    'full_address',
+    'street_address',
+    'city',
+    'country',
+    'zip_code',
+    'mobile_phone_number',
+    'two_factor_secret',
     ];
+
 
     /**
      * The attributes that should be hidden for serialization.
