@@ -10,15 +10,13 @@ use Illuminate\Support\Facades\Auth;
 use PragmaRX\Google2FA\Google2FA;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
-use BaconQrCode\Renderer\Image\Png;
+// Remove the next import! v2.x does NOT have `Image\Png`
 use BaconQrCode\Writer;
-
-
 
 
 class AuthController extends Controller
 {
-   // Register a new user
+    // Register a new user
     public function register(Request $request)
     {
         $data = $request->validate([
@@ -56,10 +54,9 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json(['access_token' => $token, 'token_type' => 'Bearer']);
+    }
 
-}
-
-// set up 2FA with Google Authenticator ( returns secret/QR)
+    // set up 2FA with Google Authenticator ( returns secret/QR)
     public function setup2FA(Request $request)
     {
         $user = Auth::user();
@@ -69,15 +66,15 @@ class AuthController extends Controller
         $user->save();
 
         $otpAuthUrl = $google2fa->getQRCodeUrl(
-        'YourAppName', // or set your own app name
-        $user->email,
-        $secret
+            'YourAppName', // or set your own app name
+            $user->email,
+            $secret
         );
 
         // Generate QR code PNG as base64 string using BaconQrCode
         $renderer = new ImageRenderer(
             new RendererStyle(200),
-            new Png()
+            new \BaconQrCode\Renderer\Image\SvgImageBackEnd()
         );
 
         $writer = new Writer($renderer);
@@ -85,18 +82,15 @@ class AuthController extends Controller
         $qr_base64 = 'data:image/png;base64,' . base64_encode($pngData);
 
         return response()->json([
-        'secret' => $secret,
-        'otpauth_url' => $otpAuthUrl,
-        'qr' => $qr_base64
+            'secret' => $secret,
+            'otpauth_url' => $otpAuthUrl,
+            'qr' => $qr_base64
         ]);
-
-        
     }
 
     // Verify 2FA code during login ( step 2 of 2FA Login)
     public function verify2FA(Request $request)
     {
-    
         $user = User::find($request->user_id); // Receive from login's 2fa_required step
         $google2fa = new Google2FA();
         $valid = $google2fa->verifyKey($user->two_factor_secret, $request->input('code'));
@@ -113,5 +107,4 @@ class AuthController extends Controller
         $user = $request->user();
         return response()->json($user);
     }
-    
 }
