@@ -35,7 +35,12 @@ class AuthController extends Controller
         ]);
         $data['password'] = Hash::make($data['password']);
         $user = User::create($data);
-        return response()->json(['message' => 'User registered', 'user' => $user]);
+        return response()->json([
+    'message' => 'User registered',
+    'user' => $user,
+    'user_id' => $user->id,
+]);
+
     }
 
     // Login step 1 of 2FA setup
@@ -79,7 +84,7 @@ class AuthController extends Controller
 
         $writer = new Writer($renderer);
         $pngData = $writer->writeString($otpAuthUrl);
-        $qr_base64 = 'data:image/png;base64,' . base64_encode($pngData);
+        $qr_base64 = 'data:image/svg+xml;base64,' . base64_encode($pngData);
 
         return response()->json([
             'secret' => $secret,
@@ -92,6 +97,9 @@ class AuthController extends Controller
     public function verify2FA(Request $request)
     {
         $user = User::find($request->user_id); // Receive from login's 2fa_required step
+        if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
         $google2fa = new Google2FA();
         $valid = $google2fa->verifyKey($user->two_factor_secret, $request->input('code'));
         if (!$valid) {
