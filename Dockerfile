@@ -15,13 +15,16 @@ RUN apt-get update && apt-get install -y \
     unzip
 
 # Install PHP extensions required by Laravel
-RUN docker-php-ext-install pdo_mysql mbstring bcmath gd
+RUN docker-php-ext-install pdo_mysql pdo_pgsql mbstring bcmath gd
 
 # Install Composer globally
 COPY --from=composer:2.7.2 /usr/bin/composer /usr/bin/composer
 
 # Copy application code to container
 COPY . /var/www
+
+# Install PHP dependencies (this is CRUCIAL)
+RUN composer install --optimize-autoloader --no-dev
 
 # Change ownership of application code
 RUN chown -R www-data:www-data /var/www
