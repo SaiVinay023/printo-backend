@@ -15,6 +15,12 @@ This implementation runs as a **multi-repo**:
 **Why multi-repo?**  
 Separation of concerns, independent development/deployment, clean security boundaries, and flexibility for future scaling or microservices.
 
+
+## 🚀 Deployment
+
+- **Frontend:** Deploy on Vercel,https://printo-frontend.vercel.app/
+- **Backend:** Deploy on Render, https://printo-backend-62em.onrender.com
+
 ***
 
 ## 🛠️ Tech Stack
