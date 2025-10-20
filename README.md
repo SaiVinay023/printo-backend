@@ -1,61 +1,255 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Here’s a **complete, unified README.md** for Printo project (multi-repo setup, backend with PostgreSQL via Docker, full instructions, architecture, endpoints, testing, and contact info):
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+***
 
-## About Laravel
+# 🖨️ Printo – Collaborative Printing Platform
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Overview
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**Printo** is a modern, secure printing collaboration platform designed to manage users, authentication (with 2FA).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+This implementation runs as a **multi-repo**:  
+- 🖥️ **Frontend:** [printo-frontend](https://github.com/SaiVinay023/printo-frontend) – React + Vite SPA  
+- ⚙️ **Backend:** [printo-backend](https://github.com/SaiVinay023/printo-backend) – Laravel REST API
 
-## Learning Laravel
+**Why multi-repo?**  
+Separation of concerns, independent development/deployment, clean security boundaries, and flexibility for future scaling or microservices.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+***
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 🛠️ Tech Stack
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Layer      | Technology                                         |
+|------------|----------------------------------------------------|
+| Frontend   | React 18.x, Vite 4.x, JavaScript, CSS              |
+| Backend    | Laravel 10.x, PHP 8.x, Composer                    |
+| Database   | PostgreSQL (Docker for local dev)                  |
+| Auth/2FA   | JWT (Laravel Sanctum), PragmaRX Google2FA, BaconQrCode |
+| Testing    | PHPUnit (backend), postman, curl |
+| Deployment | Vercel (frontend), Render (backend)    |
+| Dev Tools  | ESLint, Prettier, GitHub Actions                   |
 
-## Laravel Sponsors
+***
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+🚀 User Flow Overview
+Home: User sees branding and chooses either "Register" or "Login".
 
-### Premium Partners
+Register: User completes a profile form, submits info to backend.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Login: User enters email & password; if 2FA is required, proceeds accordingly.
 
-## Contributing
+2FA Setup: If needed, user is shown a QR code to scan and add to Google Authenticator.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+2FA Verification: User enters current 6-digit code from authenticator app.
 
-## Code of Conduct
+Profile Page: On success, user sees protected demographic info.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Logout: User can log out, which ends the protected session.
 
-## Security Vulnerabilities
+![alt text](07d57f25-0d09-40bf-845c-c9ea2f8cd24e.png)
+![alt text](6b3b4d60-1.png)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-## License
+## 🏗️ Architecture & Folder Structure
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**Multi-Repo Structure:**
+
+```
+printo-backend/
+├── app/                # Controllers, Models
+├── config/
+├── database/
+│   ├── migrations/
+│   └── seeders/
+├── routes/
+│   └── api.php
+├── tests/
+├── .env.example
+└── composer.json
+
+printo-frontend/
+├── public/
+├── src/
+│   ├── api/
+│   ├── components/
+│   ├── pages/
+│   ├── App.jsx
+│   └── main.jsx
+├── .env.example
+├── package.json
+└── vite.config.js
+```
+
+**Implementation Flow:**
+1. User registers (frontend → `/api/register`)
+2. Frontend prompts for 2FA setup (backend → `/api/setup-2fa`)
+3. User scans QR, submits OTP (frontend → `/api/verify-2fa`)
+4. On verification, receives JWT and can access secure endpoints (`/api/profile`)
+5. Profile and advanced features exposed conditionally based on authentication/2FA state
+
+***
+
+## 🗄️ Run Local Database with Docker
+
+```bash
+docker run -d \
+  --name printo-postgres \
+  -e POSTGRES_DB=laraveldb \
+  -e POSTGRES_USER=laraveluser \
+  -e POSTGRES_PASSWORD=secret \
+  -p 5432:5432 \
+  postgres:15
+```
+**Docker exposes Postgres at `localhost:5432` for your Laravel backend.**
+
+***
+
+## 🧑‍💻 Installation & Local Setup
+
+### 1. **Clone Both Repos**
+```bash
+git clone https://github.com/SaiVinay023/printo-frontend.git
+git clone https://github.com/SaiVinay023/printo-backend.git
+```
+
+### 2. **Backend Setup**
+```bash
+cd printo-backend
+cp .env.example .env            # Set DB config to match Docker above
+composer install
+php artisan key:generate
+php artisan migrate             # Creates necessary tables
+php artisan serve               # API at http://localhost:8000
+```
+
+### 3. **Frontend Setup**
+```bash
+cd printo-frontend
+cp .env.example .env            # Set VITE_API_URL=http://localhost:8000/api
+npm install
+npm run dev                     # Runs frontend at http://localhost:5173
+```
+
+***
+
+## ⚙️ Environment Variables
+
+### Backend (`.env`)
+```
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=laraveldb
+DB_USERNAME=laraveluser
+DB_PASSWORD=secret
+```
+
+### Frontend (`.env`)
+```
+VITE_API_URL=http://localhost:8000/api
+```
+
+***
+
+## 📚 API Endpoints
+
+| Method | Endpoint            | Purpose                                   |
+|--------|---------------------|-------------------------------------------|
+| POST   | /api/register       | User registration                         |
+| POST   | /api/login          | Login, triggers 2FA                       |
+| POST   | /api/setup-2fa      | Enroll 2FA, returns QR and secret         |
+| POST   | /api/verify-2fa     | Validate OTP, receive JWT                 |
+| GET    | /api/profile        | Authenticated user info                   |
+
+**Example request/response:**
+
+- **Register**
+  ```json
+  POST /api/register
+  {
+    "name": "Vinay", "email": "...", "password": "...", ...
+  }
+  → { "user_id": 1, "message": "User registered", ... }
+  ```
+
+- **Setup 2FA**
+  ```json
+  POST /api/setup-2fa
+  (Headers: Bearer access_token)
+  → { "qr": "...", "secret": "...", "user_id": 1 }
+  ```
+
+- **Verify 2FA**
+  ```json
+  POST /api/verify-2fa
+  { "user_id": 1, "code": "123456" }
+  → { "access_token": "..." }
+  ```
+
+- **Profile**
+  ```json
+  GET /api/profile
+  (Headers: Bearer access_token)
+  → { ...demographic info... }
+  ```
+
+***
+
+## 🔬 Backend Testing
+
+Run the backend test suite:
+```bash
+php artisan test
+```
+Covers key features: registration, login, 2FA setup/verify, profile access.
+
+***
+
+## 🧪 Frontend Testing (Optional)
+
+If using Jest/Cypress:
+```bash
+npm run test
+npx cypress open
+```
+
+***
+
+## 🚀 Deployment
+
+- **Frontend:** Deploy on Vercel, Netlify, or Render. Connect repo, set API URL.
+- **Backend:** Deploy on AWS, Render, DigitalOcean. Ensure Postgres production DB and `.env` are set.
+
+***
+
+## 🤝 Contributing
+
+- Fork both repos
+- Create feature branches
+- Open PR with detailed description and tests
+
+***
+
+## ⚖️ License
+
+MIT License © SaiVinay023
+
+***
+
+## 👤 Author / Contact
+
+**Sai Vinay**  
+- [LinkedIn](https://linkedin.com/in/saivinay023)  
+- [GitHub](https://github.com/SaiVinay023)  
+- Email: youremail@example.com
+
+***
+
+## 🗂️ Why Two Repositories?
+
+- **Separation of concerns:** Clean separation between UI/UX (frontend) and API/data/business logic (backend)
+- **Scalability:** Enables independent releases, microservice migration, and flexible scaling
+- **Security:** Backend and database code/config are not publicly exposed
+- **Collaboration:** Backend and frontend teams work independently with separate CI/CD pipelines
+
+
