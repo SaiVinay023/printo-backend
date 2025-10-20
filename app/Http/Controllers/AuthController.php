@@ -89,7 +89,8 @@ class AuthController extends Controller
         return response()->json([
             'secret' => $secret,
             'otpauth_url' => $otpAuthUrl,
-            'qr' => $qr_base64
+            'qr' => $qr_base64,
+            'user_id' => $user->id
         ]);
     }
 
